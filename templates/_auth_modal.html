@@ -2,6 +2,12 @@
     <div class="modal-content">
         <span class="close" id="login-modal-close">&times;</span>
         <h2>Iniciar sesión</h2>
+        {% if sso_enabled %}
+        <button type="button" id="btn-sso-malla" class="btn-login" style="width:100%;margin-bottom:0.75rem;">
+            Entrar con cuenta Malla
+        </button>
+        <p style="text-align:center;color:#777;font-size:0.85rem;margin:0 0 1rem;">— o con usuario GTask —</p>
+        {% endif %}
         <form id="login-form">
             <div class="form-group">
                 <label for="username">Usuario GTask</label>

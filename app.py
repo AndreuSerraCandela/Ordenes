@@ -8,6 +8,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from business_central.client import detalle_orden, listar_ordenes, valorar_orden
 from config import APP_PUBLIC_URL, HOST, PORT, SECRET_KEY
 import gtask_client
+import sso_auth
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("ordenes")
@@ -41,7 +42,11 @@ def _vista_valida(vista: str) -> str:
 
 @app.context_processor
 def inject_public():
-    return {"app_public_url": APP_PUBLIC_URL}
+    return {
+        "app_public_url": APP_PUBLIC_URL,
+        "sso_enabled": sso_auth.is_sso_enabled(),
+        "sso_launch_url": sso_auth.sso_launch_url(),
+    }
 
 
 @app.route("/health")
@@ -71,6 +76,42 @@ def abrir_ot(no):
     )
 
 
+@app.route("/api/auth/sso/status", methods=["GET"])
+def auth_sso_status():
+    return jsonify({"success": True, **sso_auth.sso_status_payload()})
+
+
+@app.route("/api/auth/sso/exchange", methods=["POST"])
+def auth_sso_exchange():
+    if not sso_auth.is_sso_enabled():
+        status = sso_auth.sso_status_payload()
+        return jsonify(
+            {
+                "success": False,
+                "error": "Login SSO no habilitado",
+                "sso_status": status,
+            }
+        ), 403
+    data = request.get_json(silent=True) or {}
+    token = (data.get("token") or "").strip()
+    try:
+        payload = sso_auth.verify_exchange_token(token)
+        user_data = sso_auth.build_user_data_from_sso(payload)
+        session["user"] = user_data
+        session["auth_method"] = "sso"
+        siguiente = session.pop("next", "") or ""
+        return jsonify(
+            {
+                "success": True,
+                "user_data": user_data,
+                "next": siguiente,
+                "auth_method": "sso",
+            }
+        )
+    except ValueError as exc:
+        return jsonify({"success": False, "error": str(exc)}), 401
+
+
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json() or {}
@@ -82,11 +123,13 @@ def login():
     if not resultado.get("success"):
         return jsonify({"success": False, "error": resultado.get("error")}), 401
     session["user"] = resultado["user_data"]
+    session["auth_method"] = "legacy"
     siguiente = session.pop("next", "") or ""
     return jsonify({
         "success": True,
         "user_data": resultado["user_data"],
         "next": siguiente,
+        "auth_method": "legacy",
     })
 
 

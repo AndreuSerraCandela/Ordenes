@@ -40,6 +40,7 @@
         </article>
     </main>
     {% include '_auth_modal.html' %}
+    <script id="sso-config-json" type="application/json">{{ {'enabled': sso_enabled, 'launch_url': sso_launch_url} | tojson }}</script>
     <script>
         window.ORDEN_NO = {{ no|tojson }};
         window.ORDEN_VISTA = {{ vista|tojson }};

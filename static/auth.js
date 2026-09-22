@@ -1,11 +1,21 @@
 /**
- * Acceso con usuario GTask.
+ * Acceso con usuario GTask o SSO Malla (legacy GTask en el modal).
  */
 (function () {
     'use strict';
 
+    const SSO_STORAGE_PREFIX = 'ordenes_sso_';
     const estado = { autenticado: false, usuarioActual: null, esSupervisor: false };
     const readyCallbacks = [];
+
+    const SSO_CONFIG = (() => {
+        try {
+            const el = document.getElementById('sso-config-json');
+            return el ? JSON.parse(el.textContent || '{}') : {};
+        } catch (e) {
+            return {};
+        }
+    })();
 
     function $(id) { return document.getElementById(id); }
 
@@ -60,6 +70,75 @@
         if (modal) modal.style.display = 'none';
         if (errorDiv) errorDiv.style.display = 'none';
         if (form) form.reset();
+    }
+
+    function limpiarSsoTokenEnUrl() {
+        const params = new URLSearchParams(window.location.search);
+        if (!params.has('sso_token')) return;
+        params.delete('sso_token');
+        const qs = params.toString();
+        const clean = window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash;
+        window.history.replaceState({}, '', clean);
+    }
+
+    function applySsoBootstrapError() {
+        const err = sessionStorage.getItem(`${SSO_STORAGE_PREFIX}error`);
+        if (!err) return false;
+        sessionStorage.removeItem(`${SSO_STORAGE_PREFIX}error`);
+        const errorDiv = $('login-error');
+        if (errorDiv) {
+            errorDiv.textContent = err;
+            errorDiv.style.display = 'block';
+        }
+        mostrarLogin();
+        return true;
+    }
+
+    async function procesarSsoTokenDesdeUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('sso_token');
+        if (!token) return false;
+        if (sessionStorage.getItem(`${SSO_STORAGE_PREFIX}processing`) === token) return true;
+        sessionStorage.setItem(`${SSO_STORAGE_PREFIX}processing`, token);
+        try {
+            const response = await fetch('/api/auth/sso/exchange', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token }),
+            });
+            const data = await response.json();
+            limpiarSsoTokenEnUrl();
+            if (!response.ok || !data.success) {
+                sessionStorage.setItem(
+                    `${SSO_STORAGE_PREFIX}error`,
+                    (data && data.error) || `SSO HTTP ${response.status}`,
+                );
+                window.location.reload();
+                return true;
+            }
+            if (data.next) {
+                window.location.assign(data.next);
+                return true;
+            }
+            window.location.reload();
+            return true;
+        } catch (error) {
+            sessionStorage.setItem(`${SSO_STORAGE_PREFIX}error`, String(error && error.message || error));
+            limpiarSsoTokenEnUrl();
+            window.location.reload();
+            return true;
+        } finally {
+            sessionStorage.removeItem(`${SSO_STORAGE_PREFIX}processing`);
+        }
+    }
+
+    function iniciarLoginSsoMalla() {
+        const url = SSO_CONFIG.launch_url;
+        if (!url) {
+            mostrarLogin();
+            return;
+        }
+        window.location.href = url;
     }
 
     async function realizarLogin(e) {
@@ -125,14 +204,20 @@
         }
     }
 
-    function init() {
+    async function init() {
+        if (await procesarSsoTokenDesdeUrl()) return;
+        if (applySsoBootstrapError()) {
+            // continuar para enlazar UI
+        }
         const form = $('login-form');
         const closeBtn = $('login-modal-close');
         const modal = $('login-modal');
+        const btnSso = $('btn-sso-malla');
         if ($('login-icon')) $('login-icon').addEventListener('click', mostrarLogin);
         if ($('user-icon')) $('user-icon').addEventListener('click', cerrarSesion);
         if (form) form.addEventListener('submit', realizarLogin);
         if (closeBtn) closeBtn.addEventListener('click', cerrarModal);
+        if (btnSso) btnSso.addEventListener('click', iniciarLoginSsoMalla);
         if (modal) {
             window.addEventListener('click', function (e) {
                 if (e.target === modal && estado.autenticado) cerrarModal();

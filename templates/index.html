@@ -27,6 +27,7 @@
         <div id="ordenes-lista" class="orden-lista"></div>
     </main>
     {% include '_auth_modal.html' %}
+    <script id="sso-config-json" type="application/json">{{ {'enabled': sso_enabled, 'launch_url': sso_launch_url} | tojson }}</script>
     <script>
         window.ORDENES_VISTA = {{ vista|tojson }};
         window.ORDENES_REQUIRE_LOGIN = true;
