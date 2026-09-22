@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo }} | Grupo Malla</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="top-bar">
+        <div class="top-bar-container">
+            <span><i class="fa fa-phone"></i> <a href="tel:+34971002800">+34 971 00 28 00</a></span>
+        </div>
+    </div>
+    {% from '_nav.html' import nav %}
+    {{ nav(vista) }}
+    <main class="main-content">
+        <header class="page-head">
+            <h2>{{ titulo }}</h2>
+            <p id="ordenes-contador" class="muted"></p>
+        </header>
+        <p id="ordenes-error" class="error-banner" hidden></p>
+        <div id="ordenes-lista" class="orden-lista"></div>
+    </main>
+    {% include '_auth_modal.html' %}
+    <script>
+        window.ORDENES_VISTA = {{ vista|tojson }};
+        window.ORDENES_REQUIRE_LOGIN = true;
+    </script>
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
+    <script src="{{ url_for('static', filename='ordenes.js') }}"></script>
+</body>
+</html>

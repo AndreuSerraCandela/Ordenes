@@ -1,0 +1,27 @@
+{% macro nav(active='') %}
+<nav class="navbar-corporativo">
+    <div class="navbar-container">
+        <a class="navbar-brand" href="/">
+            <img src="{{ url_for('static', filename='images/logomalla.png') }}" alt="Grupo Malla" height="48">
+        </a>
+        <div class="navbar-title">
+            <h1>Órdenes de trabajo — Grupo Malla</h1>
+        </div>
+        <div class="navbar-right">
+            <div class="nav-links">
+                <a href="/" class="nav-link{% if active == 'mias' %} active{% endif %}"><i class="fa fa-clipboard-list"></i> Mis órdenes</a>
+                <a href="/supervisar" id="nav-supervisar" class="nav-link{% if active == 'supervisar' %} active{% endif %}" hidden><i class="fa fa-check-double"></i> Por valorar</a>
+            </div>
+            <div class="auth-section">
+                <div id="user-icon" class="user-session" style="display: none;" title="Clic para cerrar sesión">
+                    <span class="user-icon user-icon--logged-in" aria-hidden="true"><i class="fa fa-user"></i></span>
+                    <span id="user-name" class="user-name"></span>
+                </div>
+                <div id="login-icon" class="user-icon" title="Iniciar sesión">
+                    <i class="fa fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+{% endmacro %}
