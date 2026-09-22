@@ -4,9 +4,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
-
 BASE_DIR = Path(__file__).parent
+load_dotenv(BASE_DIR / ".env")
 
 BUSINESS_CENTRAL_BASE_URL = os.getenv("BUSINESS_CENTRAL_BASE_URL", "https://bc220.malla.es")
 BUSINESS_CENTRAL_API_KEY = os.getenv("BUSINESS_CENTRAL_API_KEY", "")

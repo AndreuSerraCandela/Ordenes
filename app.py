@@ -3,6 +3,7 @@ import logging
 from functools import wraps
 
 from flask import Flask, jsonify, render_template, request, session
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from business_central.client import detalle_orden, listar_ordenes, valorar_orden
 from config import APP_PUBLIC_URL, HOST, PORT, SECRET_KEY
@@ -13,6 +14,10 @@ logger = logging.getLogger("ordenes")
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
+if APP_PUBLIC_URL.startswith("https://"):
+    app.config["SESSION_COOKIE_SECURE"] = True
+    app.config["PREFERRED_URL_SCHEME"] = "https"
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 
 
 def _usuario():
@@ -37,6 +42,11 @@ def _vista_valida(vista: str) -> str:
 @app.context_processor
 def inject_public():
     return {"app_public_url": APP_PUBLIC_URL}
+
+
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok"})
 
 
 @app.route("/")
