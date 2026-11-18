@@ -15,12 +15,68 @@
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     function fila(etiqueta, valor) {
         if (!valor) return '';
         return '<div><dt>' + escapeHtml(etiqueta) + '</dt><dd>' + escapeHtml(valor) + '</dd></div>';
+    }
+
+    function mimeAdjunto(extension) {
+        const tipos = {
+            jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp',
+            mp3: 'audio/mpeg', m4a: 'audio/mp4', mp4: 'audio/mp4', wav: 'audio/wav',
+            webm: 'audio/webm', ogg: 'audio/ogg', aac: 'audio/aac',
+            pdf: 'application/pdf', txt: 'text/plain',
+        };
+        return tipos[String(extension || '').toLowerCase()] || 'application/octet-stream';
+    }
+
+    function urlHttp(url) {
+        try {
+            const parsed = new URL(String(url || ''), window.location.origin);
+            return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : '';
+        } catch (_) {
+            return '';
+        }
+    }
+
+    function pintarAdjuntos(adjuntos) {
+        const bloque = $('bloque-adjuntos');
+        const lista = $('detalle-adjuntos');
+        bloque.hidden = !adjuntos.length;
+        if (!adjuntos.length) {
+            lista.innerHTML = '';
+            return;
+        }
+        lista.innerHTML = adjuntos.map(function (adjunto, index) {
+            const nombre = adjunto.nombre || ('Adjunto ' + (index + 1));
+            const extension = String(adjunto.extension || '').toLowerCase().replace(/^\./, '');
+            const mime = mimeAdjunto(extension);
+            const esImagen = adjunto.tipo === 'image' || mime.indexOf('image/') === 0;
+            const esAudio = mime.indexOf('audio/') === 0;
+            const externa = urlHttp(adjunto.url);
+            const dataUrl = adjunto.contenido ? ('data:' + mime + ';base64,' + adjunto.contenido) : '';
+            const origen = externa || dataUrl;
+            let contenido = '<span class="adjunto-icono"><i class="fa fa-paperclip"></i></span>';
+            if (esImagen && origen) {
+                contenido = '<img src="' + escapeHtml(origen) + '" alt="' + escapeHtml(nombre) + '" loading="lazy">';
+            } else if (esAudio && origen) {
+                contenido = '<audio controls preload="metadata" src="' + escapeHtml(origen) + '"></audio>';
+            }
+            const nombreCompleto = extension && !String(nombre).toLowerCase().endsWith('.' + extension)
+                ? nombre + '.' + extension
+                : nombre;
+            const enlace = origen
+                ? '<a class="adjunto-enlace" href="' + escapeHtml(origen) + '" target="_blank" rel="noopener"' +
+                    (externa ? '' : ' download="' + escapeHtml(nombreCompleto) + '"') + '>' +
+                    '<i class="fa fa-external-link-alt"></i> Abrir</a>'
+                : '<span class="muted">No disponible</span>';
+            return '<article class="adjunto-card">' + contenido +
+                '<div class="adjunto-pie"><strong>' + escapeHtml(nombreCompleto) + '</strong>' + enlace + '</div></article>';
+        }).join('');
     }
 
     function initFirmaCanvas() {
@@ -92,10 +148,16 @@
         $('detalle-estado').textContent = orden.estado || orden.Estado || '';
         $('detalle-datos').innerHTML =
             fila('Descripción', orden.descripcion || orden.Descripcion) +
+            fila('Dosier', orden.dosier) +
             fila('Recurso', orden.recurso || orden.Recurso) +
             fila('Dirección', orden.direccion || orden.Direccion) +
             fila('Tipo', orden.tipo || orden.Tipo) +
             fila('Firma', orden.firmaFirmada ? (orden.fechaFirmaTecnico || 'Registrada') : '');
+
+        const textoDosier = orden.textoDosier || orden.descripcionPeticion || '';
+        $('bloque-dosier').hidden = !textoDosier;
+        $('texto-dosier').textContent = textoDosier;
+        pintarAdjuntos(data.adjuntos || orden.adjuntos || []);
 
         const lineas = data.lineas || orden.lineas || [];
         const cuerpo = $('detalle-lineas');

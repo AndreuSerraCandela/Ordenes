@@ -129,6 +129,45 @@ body {
 .detalle-datos dt { font-size: 0.75rem; color: #64748b; }
 .detalle-datos dd { margin: 0.15rem 0 0; font-weight: 600; }
 
+.dosier-bloque, .adjuntos-bloque {
+    margin: 1.1rem 0;
+    padding: 1rem;
+    border: 1px solid var(--malla-borde);
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.dosier-bloque h3, .adjuntos-bloque h3 { margin-top: 0; }
+.texto-dosier { margin: 0; line-height: 1.55; white-space: pre-wrap; }
+
+.adjuntos-lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.8rem;
+}
+
+.adjunto-card {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--malla-borde);
+    border-radius: 9px;
+    background: #fff;
+}
+
+.adjunto-card img {
+    display: block;
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    background: #eef2f6;
+}
+
+.adjunto-card audio { width: calc(100% - 1rem); margin: 1rem 0.5rem; }
+.adjunto-icono { display: grid; place-items: center; height: 100px; color: var(--malla-azul); font-size: 2rem; }
+.adjunto-pie { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; padding: 0.7rem; }
+.adjunto-pie strong { min-width: 0; overflow-wrap: anywhere; font-size: 0.85rem; }
+.adjunto-enlace { flex: 0 0 auto; color: var(--malla-azul); font-size: 0.85rem; font-weight: 600; text-decoration: none; }
+
 table { width: 100%; border-collapse: collapse; background: #fff; }
 th, td { text-align: left; padding: 0.55rem 0.4rem; border-bottom: 1px solid var(--malla-borde); font-size: 0.92rem; }
 th { color: #64748b; font-weight: 600; }
