@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20261118-2') }}">
 </head>
 <body>
     <div class="top-bar">
@@ -39,10 +39,13 @@
                 <div id="detalle-adjuntos" class="adjuntos-lista"></div>
             </section>
             <h3>Líneas</h3>
+            <p id="aviso-edicion" class="aviso-edicion" hidden>
+                <i class="fa fa-pen"></i> Escribe la cantidad realizada en cada casilla.
+            </p>
             <div class="orden-lista">
                 <table>
                     <thead>
-                        <tr><th>Código</th><th>Descripción</th><th>Cantidad</th></tr>
+                        <tr><th>Código</th><th>Descripción</th><th id="cabecera-cantidad">Cantidad</th></tr>
                     </thead>
                     <tbody id="detalle-lineas"></tbody>
                 </table>
@@ -72,6 +75,6 @@
         window.ORDENES_REQUIRE_LOGIN = true;
     </script>
     <script src="{{ url_for('static', filename='auth.js') }}"></script>
-    <script src="{{ url_for('static', filename='detalle.js') }}"></script>
+    <script src="{{ url_for('static', filename='detalle.js', v='20261118-2') }}"></script>
 </body>
 </html>

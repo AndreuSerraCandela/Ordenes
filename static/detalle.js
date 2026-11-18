@@ -170,15 +170,22 @@
                 const cantidad = lin.cantidad != null ? lin.cantidad : (lin.Cantidad || 0);
                 const numeroLinea = lin.linea != null ? lin.linea : '';
                 const cantidadHtml = puedeEditar
-                    ? '<input class="cantidad-input" type="number" min="0" step="any" inputmode="decimal"' +
-                        ' data-linea="' + escapeHtml(numeroLinea) + '" value="' + escapeHtml(cantidad) + '"' +
-                        ' aria-label="Cantidad de ' + escapeHtml(desc) + '">'
+                    ? '<div class="cantidad-editor"><input class="cantidad-input" type="text" inputmode="decimal"' +
+                        ' pattern="[0-9]*[.,]?[0-9]*" data-linea="' + escapeHtml(numeroLinea) + '"' +
+                        ' value="' + escapeHtml(cantidad) + '" placeholder="0"' +
+                        ' aria-label="Escribir cantidad de ' + escapeHtml(desc) + '">' +
+                        '<i class="fa fa-pen" aria-hidden="true"></i></div>'
                     : escapeHtml(cantidad);
                 return '<tr><td>' + escapeHtml(lin.codigo || lin.Codigo || '') + '</td>' +
                     '<td>' + escapeHtml(desc) + '</td>' +
                     '<td>' + cantidadHtml + '</td></tr>';
             }).join('');
         }
+        $('aviso-edicion').hidden = !puedeEditar || !lineas.length;
+        $('cabecera-cantidad').textContent = puedeEditar ? 'Cantidad (editable)' : 'Cantidad';
+        cuerpo.querySelectorAll('.cantidad-input').forEach(function (input) {
+            input.addEventListener('focus', function () { input.select(); });
+        });
         $('acciones-edicion').hidden = !puedeEditar || !lineas.length;
         $('btn-finalizar').hidden = data.puedeFinalizar !== true || vista !== 'mias' || !lineas.length;
 
@@ -240,7 +247,7 @@
     function leerLineas() {
         return Array.from(document.querySelectorAll('.cantidad-input')).map(function (input) {
             if (!input.dataset.linea) throw new Error('Falta el identificador de una línea.');
-            const cantidad = Number(input.value);
+            const cantidad = Number(String(input.value).trim().replace(',', '.'));
             if (!Number.isFinite(cantidad) || cantidad < 0) {
                 throw new Error('Revisa las cantidades: deben ser números iguales o mayores que cero.');
             }

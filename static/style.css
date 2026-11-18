@@ -172,19 +172,51 @@ table { width: 100%; border-collapse: collapse; background: #fff; }
 th, td { text-align: left; padding: 0.55rem 0.4rem; border-bottom: 1px solid var(--malla-borde); font-size: 0.92rem; }
 th { color: #64748b; font-weight: 600; }
 
-.cantidad-input {
-    width: 7rem;
+.aviso-edicion {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0 0 0.25rem;
+    padding: 0.55rem 0.7rem;
+    color: #8a3f08;
+    background: #fff4e8;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.cantidad-editor {
+    position: relative;
+    width: 9rem;
     max-width: 100%;
-    padding: 0.55rem 0.6rem;
-    border: 2px solid var(--malla-borde);
+}
+
+.cantidad-editor i {
+    position: absolute;
+    top: 50%;
+    right: 0.65rem;
+    transform: translateY(-50%);
+    color: var(--malla-naranja);
+    pointer-events: none;
+}
+
+.cantidad-input {
+    width: 100%;
+    padding: 0.65rem 2rem 0.65rem 0.7rem;
+    border: 2px solid var(--malla-naranja);
     border-radius: 8px;
     font: inherit;
+    font-weight: 700;
     text-align: right;
+    color: var(--malla-texto);
+    background: #fffaf5;
 }
 
 .cantidad-input:focus {
     outline: none;
     border-color: var(--malla-azul);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.14);
 }
 
 .orden-acciones {
