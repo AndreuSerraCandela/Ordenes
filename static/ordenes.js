@@ -23,10 +23,11 @@
         const filas = ordenes.map(function (orden) {
             const no = orden.no || orden.No || '';
             const href = '/OT-' + encodeURIComponent(no) + '?vista=' + encodeURIComponent(vista);
+            const firmada = orden.firmaFirmada ? ' · Firmada' : '';
             return '<a class="orden-card" href="' + href + '">' +
                 '<strong>' + escapeHtml(orden.idQr || ('OT-' + no)) + '</strong>' +
                 '<span>' + escapeHtml(orden.descripcion || orden.Descripcion || 'Sin descripción') + '</span>' +
-                '<span class="muted">' + escapeHtml(orden.recurso || orden.Recurso || '') + '</span>' +
+                '<span class="muted">' + escapeHtml(orden.recurso || orden.Recurso || '') + firmada + '</span>' +
                 '</a>';
         }).join('');
         lista.innerHTML = filas;

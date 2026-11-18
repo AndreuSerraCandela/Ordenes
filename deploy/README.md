@@ -10,7 +10,7 @@
 
 1. El deploy copia el código con robocopy pero **no sobrescribe** `web.config` ni `.env`.
 2. Si el wwwroot está vacío, `Deploy-App.ps1` hace **bootstrap** del `web.config` del repo la primera vez.
-3. Crea en el servidor `C:\inetpub\wwwroot\Ordenes\.env` a partir de `.env.example` (credenciales BC, GTask, `SECRET_KEY`).
+3. Crea en el servidor `C:\inetpub\wwwroot\Ordenes\.env` a partir de `.env.example` (credenciales BC, GTask, `SECRET_KEY`, `MALLA_SSO_SECRET` para login Malla).
 
 ## Despliegues siguientes
 

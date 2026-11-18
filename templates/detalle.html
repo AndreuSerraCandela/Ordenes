@@ -23,6 +23,7 @@
     <main class="main-content">
         <a class="volver" id="enlace-volver" href="/"><i class="fa fa-arrow-left"></i> Volver al listado</a>
         <p id="detalle-error" class="error-banner" hidden></p>
+        <p id="detalle-mensaje" class="success-banner" hidden></p>
         <article id="detalle" class="detalle" hidden>
             <header class="page-head">
                 <h2 id="detalle-titulo"></h2>
@@ -38,6 +39,20 @@
                     <tbody id="detalle-lineas"></tbody>
                 </table>
             </div>
+            <div id="acciones-edicion" class="orden-acciones" hidden>
+                <button type="button" id="btn-guardar" class="btn-secondary">Guardar cambios</button>
+                <button type="button" id="btn-finalizar" class="btn-accent">Finalizar orden</button>
+            </div>
+            <section id="bloque-firma" class="firma-bloque" hidden>
+                <h3>Firma del técnico</h3>
+                <p class="muted">Firma en el recuadro para confirmar el trabajo realizado.</p>
+                <canvas id="firma-canvas" width="480" height="160" aria-label="Área de firma"></canvas>
+                <div class="firma-acciones">
+                    <button type="button" id="btn-firma-limpiar" class="btn-secondary">Borrar</button>
+                    <button type="button" id="btn-firmar" class="btn-accent">Firmar orden</button>
+                </div>
+            </section>
+            <p id="firma-ok" class="firma-ok muted" hidden><i class="fa fa-check"></i> Orden firmada</p>
             <button type="button" id="btn-valorar" class="btn-accent" hidden>Dar el ok</button>
         </article>
     </main>

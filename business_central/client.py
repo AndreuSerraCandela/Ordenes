@@ -17,6 +17,10 @@ DetalleOrdenTrabajo
 CerrarParteTrabajo (ok del supervisor)
   Entrada: {"no_parte":"...","idGtask":"..."}
   El parte pasa a Cerrado. El operario deja de verlo.
+
+FirmarOrdenTrabajo (firma del técnico asignado)
+  Entrada: {"no_parte":"...","idGtask":"...","firma":"data:image/png;base64,..."}
+  Guarda la firma en el parte (Blob) y la fecha de firma.
 """
 import json
 from typing import Any, Optional
@@ -27,9 +31,11 @@ from config import (
     BC_CONFIG,
     get_bc_auth_credentials,
     get_bc_auth_header,
+    get_bc_procedure_actualizar,
     get_bc_procedure_detalle,
     get_bc_procedure_listar,
     get_bc_procedure_url,
+    get_bc_procedure_firmar,
     get_bc_procedure_valorar,
 )
 
@@ -74,11 +80,33 @@ def _llamar(procedure: str, payload: dict) -> Any:
     return _parse_value(response)
 
 
+def _ordenes_desde_value(items: list) -> list:
+    """Compatibilidad con GetOrdenesOperario ({value:[...]})."""
+    resultado = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        resultado.append(
+            {
+                "no": item.get("no") or item.get("No") or "",
+                "idQr": item.get("idQr") or item.get("idQR") or "",
+                "descripcion": item.get("descripcion") or item.get("titulo") or "",
+                "recurso": item.get("recurso") or "",
+                "direccion": item.get("direccion") or "",
+                "estado": item.get("estado") or "",
+                "firmaFirmada": bool(item.get("firmaFirmada")),
+            }
+        )
+    return resultado
+
+
 def listar_ordenes(id_gtask: str, vista: str) -> dict:
     data = _llamar(get_bc_procedure_listar(), {"idGtask": id_gtask, "vista": vista})
     if not isinstance(data, dict):
         return {"success": False, "error": "Respuesta de listado no válida", "ordenes": []}
     ordenes = data.get("ordenes") or data.get("Ordenes") or []
+    if not ordenes and isinstance(data.get("value"), list):
+        ordenes = _ordenes_desde_value(data["value"])
     if not isinstance(ordenes, list):
         ordenes = []
     return {
@@ -99,11 +127,50 @@ def detalle_orden(id_gtask: str, no: str, vista: str) -> dict:
     return data
 
 
+def actualizar_orden(id_gtask: str, no: str, lineas: list, finalizar: bool = False) -> dict:
+    data = _llamar(
+        get_bc_procedure_actualizar(),
+        {
+            "idGtask": id_gtask,
+            "no_parte": no,
+            "lineas": lineas,
+            "finalizar": bool(finalizar),
+        },
+    )
+    if not isinstance(data, dict):
+        return {"success": False, "error": "Respuesta de actualización no válida"}
+    if data.get("success") is False or data.get("ok") is False:
+        return {
+            "success": False,
+            "error": data.get("error") or data.get("mensaje") or "No se pudo actualizar la orden",
+        }
+    return data
+
+
 def valorar_orden(id_gtask: str, no: str) -> dict:
     data = _llamar(
         get_bc_procedure_valorar(),
         {"no_parte": no, "idGtask": id_gtask},
     )
-    if isinstance(data, dict) and data.get("success") is False:
-        return {"success": False, "error": data.get("error") or data.get("mensaje") or "No se pudo cerrar la orden"}
+    if isinstance(data, dict):
+        if data.get("success") is False or data.get("ok") is False:
+            return {
+                "success": False,
+                "error": data.get("error") or data.get("mensaje") or "No se pudo cerrar la orden",
+            }
     return {"success": True, "mensaje": "Orden valorada"}
+
+
+def firmar_orden(id_gtask: str, no: str, firma_base64: str) -> dict:
+    data = _llamar(
+        get_bc_procedure_firmar(),
+        {"no_parte": no, "idGtask": id_gtask, "firma": firma_base64},
+    )
+    if not isinstance(data, dict):
+        return {"success": False, "error": "Respuesta de firma no válida"}
+    if data.get("success") is False or data.get("ok") is False:
+        return {
+            "success": False,
+            "error": data.get("error") or data.get("mensaje") or "No se pudo guardar la firma",
+        }
+    return {"success": True, "mensaje": "Firma registrada", "firmaFirmada": True}

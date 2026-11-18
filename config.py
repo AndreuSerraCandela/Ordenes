@@ -67,3 +67,11 @@ def get_bc_procedure_detalle() -> str:
 
 def get_bc_procedure_valorar() -> str:
     return os.getenv("BUSINESS_CENTRAL_PROCEDURE_VALORAR_ORDEN", "CerrarParteTrabajo")
+
+
+def get_bc_procedure_firmar() -> str:
+    return os.getenv("BUSINESS_CENTRAL_PROCEDURE_FIRMAR_ORDEN", "FirmarOrdenTrabajo")
+
+
+def get_bc_procedure_actualizar() -> str:
+    return os.getenv("BUSINESS_CENTRAL_PROCEDURE_ACTUALIZAR_ORDEN", "ActualizarOrdenTrabajo")

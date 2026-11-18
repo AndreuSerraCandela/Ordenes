@@ -5,7 +5,13 @@ from functools import wraps
 from flask import Flask, jsonify, render_template, request, session
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from business_central.client import detalle_orden, listar_ordenes, valorar_orden
+from business_central.client import (
+    actualizar_orden,
+    detalle_orden,
+    firmar_orden,
+    listar_ordenes,
+    valorar_orden,
+)
 from config import APP_PUBLIC_URL, HOST, PORT, SECRET_KEY
 import gtask_client
 import sso_auth
@@ -182,6 +188,41 @@ def api_detalle(no):
     if isinstance(data, dict) and (data.get("esSupervisor") or data.get("puedeValorar")):
         session["es_supervisor"] = True
     return jsonify(data)
+
+
+@app.route("/api/ordenes/<no>", methods=["PATCH"])
+@_login_required
+def api_actualizar(no):
+    body = request.get_json(silent=True) or {}
+    lineas = body.get("lineas")
+    if not isinstance(lineas, list):
+        return jsonify({"success": False, "error": "Faltan las líneas de la orden"}), 400
+    try:
+        data = actualizar_orden(
+            _usuario()["id"],
+            no,
+            lineas,
+            finalizar=body.get("finalizar") is True,
+        )
+    except Exception as exc:
+        logger.exception("api_actualizar")
+        return jsonify({"success": False, "error": str(exc)}), 502
+    return jsonify(data), (200 if data.get("success") else 400)
+
+
+@app.route("/api/ordenes/<no>/firmar", methods=["POST"])
+@_login_required
+def api_firmar(no):
+    body = request.get_json(silent=True) or {}
+    firma = (body.get("firma") or "").strip()
+    if not firma:
+        return jsonify({"success": False, "error": "Falta la firma"}), 400
+    try:
+        data = firmar_orden(_usuario()["id"], no, firma)
+    except Exception as exc:
+        logger.exception("api_firmar")
+        return jsonify({"success": False, "error": str(exc)}), 502
+    return jsonify(data), (200 if data.get("success") else 400)
 
 
 @app.route("/api/ordenes/<no>/valorar", methods=["POST"])

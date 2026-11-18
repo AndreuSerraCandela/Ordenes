@@ -133,6 +133,30 @@ table { width: 100%; border-collapse: collapse; background: #fff; }
 th, td { text-align: left; padding: 0.55rem 0.4rem; border-bottom: 1px solid var(--malla-borde); font-size: 0.92rem; }
 th { color: #64748b; font-weight: 600; }
 
+.cantidad-input {
+    width: 7rem;
+    max-width: 100%;
+    padding: 0.55rem 0.6rem;
+    border: 2px solid var(--malla-borde);
+    border-radius: 8px;
+    font: inherit;
+    text-align: right;
+}
+
+.cantidad-input:focus {
+    outline: none;
+    border-color: var(--malla-azul);
+}
+
+.orden-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1rem;
+}
+
+.orden-acciones .btn-accent { margin-top: 0; }
+
 .volver {
     display: inline-block;
     margin-bottom: 0.8rem;
@@ -140,6 +164,45 @@ th { color: #64748b; font-weight: 600; }
     font-weight: 600;
     text-decoration: none;
 }
+
+.firma-bloque {
+    margin-top: 1.25rem;
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid var(--malla-borde);
+    border-radius: 10px;
+}
+
+.firma-bloque canvas {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+    border: 2px dashed var(--malla-borde);
+    border-radius: 8px;
+    background: #fafbfc;
+    touch-action: none;
+}
+
+.firma-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+}
+
+.btn-secondary {
+    background: #fff;
+    color: var(--malla-azul);
+    border: 2px solid var(--malla-borde);
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.firma-ok { margin-top: 1rem; font-weight: 600; color: #0d7a4a; }
 
 .btn-accent {
     margin-top: 1rem;
@@ -153,7 +216,7 @@ th { color: #64748b; font-weight: 600; }
     cursor: pointer;
 }
 
-.error-banner, .vacio {
+.error-banner, .success-banner, .vacio {
     background: #fff;
     border: 1px solid var(--malla-borde);
     border-radius: 10px;
@@ -161,6 +224,7 @@ th { color: #64748b; font-weight: 600; }
 }
 
 .error-banner { color: #990A2C; border-color: #f0c2cc; }
+.success-banner { color: #0d7a4a; border-color: #a7dfc7; }
 
 .modal {
     display: none;
